@@ -155,7 +155,12 @@ sub _target_module {
 
     my $path = Module::Path::module_path($self->opt->{'--module'});
     my @targets;
-    push @targets, $path if $path;
+    if ($path) {
+        push @targets, $path;
+    }
+    else {
+        print STDERR "No such module: ". $self->opt->{'--module'}. "\n";
+    }
     return(\@targets, '');
 }
 
