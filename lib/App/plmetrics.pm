@@ -6,7 +6,7 @@ use Perl::Metrics::Lite;
 use Statistics::Swoop;
 use Text::ASCIITable;
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 sub new {
     my ($class, $opt) = @_;
