@@ -40,6 +40,9 @@ sub _stats {
     elsif ($result_opt =~ m!^lines?$!i) {
         $self->_stats_lines($metrics);
     }
+    else {
+        print STDERR "wrong option: --result $result_opt\nsee the --help\n";
+    }
 }
 
 sub _stats_cc {
