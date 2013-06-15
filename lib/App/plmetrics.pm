@@ -88,7 +88,7 @@ sub _stats_module {
         my $t = Text::ASCIITable->new;
         $t->setCols($self->_header);
         $t->addRow( 'cc', $self->_row($metrics->{$pl}{cc}) );
-        $t->addRow( 'lines', $self->_row($metrics->{$pl}{cc}) );
+        $t->addRow( 'lines', $self->_row($metrics->{$pl}{lines}) );
         print $t. "\n";
     }
 }
