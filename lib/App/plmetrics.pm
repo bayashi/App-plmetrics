@@ -20,41 +20,41 @@ sub run {
 
     my ($targets, $base_path) = $self->_get_targets;
     my $metrics = $self->_get_metrics($targets, $base_path);
-    $self->_stats($metrics);
+    $self->_view($metrics);
 }
 
-sub _stats {
+sub _view {
     my ($self, $metrics) = @_;
 
     my $result_opt = $self->opt->{'--result'};
 
     if (!$result_opt || $result_opt =~ m!^module$!i) {
-        $self->_stats_module($metrics);
+        $self->_view_module($metrics);
     }
     elsif ($result_opt =~ m!^methods?$!i) {
-        $self->_stats_methods($metrics);
+        $self->_view_methods($metrics);
     }
     elsif ($result_opt =~ m!^cc$!i) {
-        $self->_stats_cc($metrics);
+        $self->_view_cc($metrics);
     }
     elsif ($result_opt =~ m!^lines?$!i) {
-        $self->_stats_lines($metrics);
+        $self->_view_lines($metrics);
     }
     elsif ($result_opt =~ m!^files?$!i) {
-        $self->_stats_files($metrics);
+        $self->_view_files($metrics);
     }
     else {
         print STDERR "wrong option: --result $result_opt\nsee the --help\n";
     }
 }
 
-sub _stats_cc {
+sub _view_cc {
     my ($self, $metrics) = @_;
 
     $self->_cc_lines($metrics, 'cc');
 }
 
-sub _stats_lines {
+sub _view_lines {
     my ($self, $metrics) = @_;
 
     $self->_cc_lines($metrics, 'lines');
@@ -85,7 +85,7 @@ sub _row {
                 $stats->range, $stats->sum, $stats->count );
 }
 
-sub _stats_module {
+sub _view_module {
     my ($self, $metrics) = @_;
 
     my @metrics_keys = keys %{$metrics};
@@ -99,7 +99,7 @@ sub _stats_module {
     }
 }
 
-sub _stats_files {
+sub _view_files {
     my ($self, $metrics) = @_;
 
     print "files\n";
@@ -121,7 +121,7 @@ sub _round {
     sprintf("%.2f", $_[1]);
 }
 
-sub _stats_methods {
+sub _view_methods {
     my ($self, $metrics) = @_;
 
     my @metrics_keys = keys %{$metrics};
