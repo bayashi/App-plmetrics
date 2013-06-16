@@ -8,6 +8,14 @@ use Text::ASCIITable;
 
 our $VERSION = '0.05';
 
+my %VIEWER = (
+    qr/^modules?$/i => sub { $_[0]->_view_module($_[1]) },
+    qr/^methods?$/i => sub { $_[0]->_view_methods($_[1]) },
+    qr/^cc$/i       => sub { $_[0]->_view_cc_lines($_[1], 'cc') },
+    qr/^lines?$/i   => sub { $_[0]->_view_cc_lines($_[1], 'lines') },
+    qr/^files?$/i   => sub { $_[0]->_view_files($_[1]) },
+);
+
 sub new {
     my ($class, $opt) = @_;
     bless +{ opt => $opt } => $class;
@@ -26,26 +34,15 @@ sub run {
 sub _view {
     my ($self, $stats) = @_;
 
-    my $result_opt = $self->opt->{'--result'};
+    my $result_opt = $self->opt->{'--result'} || 'module';
 
-    if (!$result_opt || $result_opt =~ m!^module$!i) {
-        $self->_view_module($stats);
+    for my $regex (keys %VIEWER) {
+        if ($result_opt =~ $regex) {
+            $VIEWER{$regex}->($self, $stats);
+            return;
+        }
     }
-    elsif ($result_opt =~ m!^methods?$!i) {
-        $self->_view_methods($stats);
-    }
-    elsif ($result_opt =~ m!^cc$!i) {
-        $self->_view_cc_lines($stats, 'cc');
-    }
-    elsif ($result_opt =~ m!^lines?$!i) {
-        $self->_view_cc_lines($stats, 'lines');
-    }
-    elsif ($result_opt =~ m!^files?$!i) {
-        $self->_view_files($stats);
-    }
-    else {
-        print STDERR "wrong option: --result $result_opt\nsee the --help\n";
-    }
+    print STDERR "wrong option: --result $result_opt\nsee the --help\n";
 }
 
 sub _view_cc_lines {
