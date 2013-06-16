@@ -40,6 +40,9 @@ sub _stats {
     elsif ($result_opt =~ m!^lines?$!i) {
         $self->_stats_lines($metrics);
     }
+    elsif ($result_opt =~ m!^files?$!i) {
+        $self->_stats_files($metrics);
+    }
     else {
         print STDERR "wrong option: --result $result_opt\nsee the --help\n";
     }
@@ -96,6 +99,24 @@ sub _stats_module {
     }
 }
 
+sub _stats_files {
+    my ($self, $metrics) = @_;
+
+    print "files\n";
+    my $t = Text::ASCIITable->new;
+    $t->setCols(qw/file lines methods packages/);
+    my @metrics_keys = keys %{$metrics};
+    for my $pl ( $self->opt->{'--sort'} ? sort @metrics_keys : @metrics_keys ) {
+        $t->addRow(
+            $pl,
+            $metrics->{$pl}{file_stats}{lines},
+            $metrics->{$pl}{file_stats}{methods},
+            $metrics->{$pl}{file_stats}{packages},
+        );
+    }
+    print $t. "\n";
+}
+
 sub _round {
     sprintf("%.2f", $_[1]);
 }
@@ -122,22 +143,33 @@ sub _get_metrics {
     my $m = Perl::Metrics::Lite->new;
     my $analysis = $m->analyze_files(@{$targets});
 
-    my %subs;
+    my %metrics;
     for my $full_path (keys %{($analysis->sub_stats)}) {
         for my $sub (@{$analysis->sub_stats->{$full_path}}) {
             $sub->{path} =~ s!$base_path/!! if $base_path;
             my $cc    = $sub->{mccabe_complexity};
             my $lines = $sub->{lines};
-            $subs{$sub->{path}}->{method}{$sub->{name}} = +{
+            $metrics{$sub->{path}}->{method}{$sub->{name}} = +{
                 cc    => $cc,
                 lines => $lines,
             };
-            push @{ $subs{$sub->{path}}->{cc} }, $cc;
-            push @{ $subs{$sub->{path}}->{lines} }, $lines;
+            push @{ $metrics{$sub->{path}}->{cc} }, $cc;
+            push @{ $metrics{$sub->{path}}->{lines} }, $lines;
         }
     }
 
-    return \%subs;
+    if ($self->opt->{'--result'} =~ m!^files?$!i) {
+        for my $stats (@{$analysis->file_stats}) {
+            $stats->{path} =~ s!$base_path/!! if $base_path;
+            $metrics{$stats->{path}}->{file_stats} = +{
+                packages => $stats->{main_stats}{packages},
+                lines    => $stats->{main_stats}{lines},
+                methods  => $stats->{main_stats}{number_of_methods},
+            };
+        }
+    }
+
+    return \%metrics;
 }
 
 sub _get_targets {
