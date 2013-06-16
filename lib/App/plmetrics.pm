@@ -127,6 +127,15 @@ sub _get_stats {
     my $m = Perl::Metrics::Lite->new;
     my $analysis = $m->analyze_files(@{$targets});
 
+    my $stats = ( ($self->opt->{'--result'} || '') =~ m!^files?$!i )
+              ? $self->_get_file_stats($analysis, $base_path)
+              : $self->_get_sub_stats($analysis, $base_path);
+    return $stats;
+}
+
+sub _get_sub_stats {
+    my ($self, $analysis, $base_path) = @_;
+
     my %stats;
     for my $full_path (keys %{($analysis->sub_stats)}) {
         for my $sub (@{$analysis->sub_stats->{$full_path}}) {
@@ -141,18 +150,21 @@ sub _get_stats {
             push @{ $stats{$sub->{path}}->{lines} }, $lines;
         }
     }
+    return \%stats;
+}
 
-    if ($self->opt->{'--result'} =~ m!^files?$!i) {
-        for my $stats (@{$analysis->file_stats}) {
-            $stats->{path} =~ s!$base_path/!! if $base_path;
-            $stats{$stats->{path}}->{file_stats} = +{
-                packages => $stats->{main_stats}{packages},
-                lines    => $stats->{main_stats}{lines},
-                methods  => $stats->{main_stats}{number_of_methods},
-            };
-        }
+sub _get_file_stats {
+    my ($self, $analysis, $base_path) = @_;
+
+    my %stats;
+    for my $f (@{$analysis->file_stats}) {
+        $f->{path} =~ s!$base_path/!! if $base_path;
+        $stats{$f->{path}}->{file_stats} = +{
+            packages => $f->{main_stats}{packages},
+            lines    => $f->{main_stats}{lines},
+            methods  => $f->{main_stats}{number_of_methods},
+        };
     }
-
     return \%stats;
 }
 
