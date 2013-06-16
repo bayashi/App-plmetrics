@@ -6,7 +6,7 @@ use Perl::Metrics::Lite;
 use Statistics::Swoop;
 use Text::ASCIITable;
 
-our $VERSION = '0.05';
+our $VERSION = '0.06';
 
 my %VIEWER = (
     qr/^modules?$/i => sub { $_[0]->_view_module($_[1]) },
