@@ -107,6 +107,7 @@ sub _view_methods {
 
     my @metrics_keys = keys %{$stats};
     for my $pl ( $self->opt->{'--sort'} ? sort @metrics_keys : @metrics_keys ) {
+        print "$pl\n";
         my $t = Text::ASCIITable->new;
         $t->setCols('', 'cc', 'lines');
         my $ref = $stats->{$pl}{method};
