@@ -35,10 +35,10 @@ sub _view {
         $self->_view_methods($stats);
     }
     elsif ($result_opt =~ m!^cc$!i) {
-        $self->_view_cc($stats);
+        $self->_view_cc_lines($stats, 'cc');
     }
     elsif ($result_opt =~ m!^lines?$!i) {
-        $self->_view_lines($stats);
+        $self->_view_cc_lines($stats, 'lines');
     }
     elsif ($result_opt =~ m!^files?$!i) {
         $self->_view_files($stats);
@@ -48,19 +48,7 @@ sub _view {
     }
 }
 
-sub _view_cc {
-    my ($self, $stats) = @_;
-
-    $self->_cc_lines($stats, 'cc');
-}
-
-sub _view_lines {
-    my ($self, $stats) = @_;
-
-    $self->_cc_lines($stats, 'lines');
-}
-
-sub _cc_lines {
+sub _view_cc_lines {
     my ($self, $stats, $label) = @_;
 
     print "$label\n";
