@@ -61,9 +61,7 @@ sub _view_cc_lines {
     print $t. "\n";
 }
 
-sub _header {
-    return('', 'avg', 'max', 'min', 'range', 'sum', 'methods');
-}
+sub _header { ('', qw/avg max min range sum methods/) }
 
 sub _row {
     my ($self, $list) = @_;
@@ -105,9 +103,7 @@ sub _view_files {
     print $t. "\n";
 }
 
-sub _round {
-    sprintf("%.2f", $_[1]);
-}
+sub _round { sprintf("%.2f", $_[1]) }
 
 sub _view_methods {
     my ($self, $stats) = @_;
